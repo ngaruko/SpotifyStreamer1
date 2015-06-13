@@ -1,0 +1,42 @@
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment"
+    android:name="net.kiwigeeks.spotify.ArtistsFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:layout="@layout/fragment_main" >
+
+
+
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="?attr/actionButtonStyle"
+        android:id="@+id/progress_bar_layout"
+      >
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@android:style/Widget.ProgressBar.Small"
+            android:id="@+id/progress_bar"
+
+            android:layout_marginLeft="60dip"
+            android:maxHeight="50dip"
+            android:minHeight="50dip"
+
+            android:minWidth="35dip"
+            android:maxWidth="35dip"
+
+
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loading" />
+    </LinearLayout>
+    </fragment>
+

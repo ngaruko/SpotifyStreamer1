@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <string-array name="pref_country_list_options" translatable="false">
+        <item>USA</item>
+        <item>UK</item>
+        <item>Canada</item>
+        <item>France</item>
+        <item>Australia</item>
+        <item>New Zealand</item>
+
+    </string-array>
+
+    <string-array name="pref_country_list_codes" translatable="false">
+        <item>US</item>
+        <item>GB</item>
+        <item>CA</item>
+        <item>FR</item>
+        <item>AU</item>
+        <item>NZ</item>
+
+    </string-array>
+
+</resources>
