@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,21 +18,17 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
+import retrofit.RetrofitError;
 
 
 /**
@@ -50,10 +47,38 @@ public class TrackActivityFragment extends Fragment {
     private TracksAdapter mTracksAdapter;
     private String countryCode;
     private String spotifyId;
+    private String testData;
 
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+
+        Intent intent = getActivity().getIntent();
+        if (intent != null) {
+
+            spotifyId = intent.getStringExtra("EXTRA_SPOTIFY_ID");
+            //  updateTracks();
+        }
+       if (savedInstanceState==null || !savedInstanceState.containsKey("tracklist"))
+           updateTracks();
+
+
+           else {
+           TrackList = savedInstanceState.getParcelableArrayList("tracklist");
+       }
+
+
+
+
+    }
 
     public TrackActivityFragment() {
     }
+
+
 
 
     @Override
@@ -61,11 +86,18 @@ public class TrackActivityFragment extends Fragment {
         super.onStart();
 
 
-        Intent intent = getActivity().getIntent();
-        if (intent != null) {
-            spotifyId = intent.getStringExtra("EXTRA_SPOTIFY_ID");
-            updateTracks();
-        }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+       // Save current data
+
+        if(TrackList!=null)        Log.e("Saving...", "I will save this " + TrackList.get(0).getAlbumName());
+        savedInstanceState.putParcelableArrayList("tracklist", TrackList);
+
 
 
     }
@@ -85,10 +117,14 @@ public class TrackActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+
+
 
         View rootView = inflater.inflate(R.layout.fragment_track, container, false);
 
-        ListView trackListView = (ListView) rootView.findViewById(R.id.listview_tracks);
+      ListView   trackListView = (ListView) rootView.findViewById(R.id.listview_tracks);
 
 
         //check out this code
@@ -149,6 +185,11 @@ public class TrackActivityFragment extends Fragment {
     public class GetTracksDataTask extends AsyncTask<String, Void, List<Track>> {
 
 
+        //private List<Track> mitracks=new ArrayList<>();
+        private TrackListData myTrack;
+        private Tracks topTracks;
+
+
         @Override
         protected List<Track> doInBackground(String... params) {
 
@@ -157,31 +198,49 @@ public class TrackActivityFragment extends Fragment {
 
             HashMap<String, Object> options = new HashMap<>();
             options.put("country", countryCode);
-            Tracks toptTracks = spotify.getArtistTopTrack(spotifyId, options);
 
-            return toptTracks.tracks;
+        try {
+            topTracks=    spotify.getArtistTopTrack(spotifyId, options);
+            return  topTracks.tracks;
+        }catch (RetrofitError error) {
+            SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
+            Log.e("Spotify Error: ",spotifyError.getMessage());
+
+
 
         }
 
 
+
+            return null;
+        }
+
+
+
+
+
+
         @Override
-        protected void onPostExecute(List<Track> topTrucks) {
+        protected void onPostExecute(List<Track> tracks) {
+           // super.onPostExecute(trackList);
 
 
-            if (topTrucks == null || topTrucks.isEmpty())
+            if (tracks == null || tracks.isEmpty()) {
+                Log.e("Error", "Nothing received!");
                 Toast.makeText(getActivity(), "NO TRACKS FOUND. PLEASE TRY AGAIN", Toast.LENGTH_LONG).show();
+            }
 
 
             else {
                 TrackList.clear();
 
-                for (Track track : topTrucks) {
+                for (Track track : tracks) {
 
-                    TrackListData myTrack = new TrackListData();
+                    myTrack = new TrackListData();
 
 
                     try {
-                            //set values for the data
+                        //set values for the data
 
                         myTrack.setTrackName(track.name);
                         myTrack.setAlbumName(track.album.name);
@@ -217,81 +276,37 @@ public class TrackActivityFragment extends Fragment {
                     Log.e("Thumb", myTrack.getPreviewUrl());
 
 
-                }
+                }//end for
                 Log.e("Numbe: ", Integer.toString(TrackList.size()));
                 Log.e("From List", TrackList.get(0).getTrackName());
                 Log.e("Country Code", countryCode);
 
 
-                //Update adapter/listview
                 mTracksAdapter.notifyDataSetChanged();
 
 
-                //Save to file
-
-                try {
-                    saveToFile(topTrucks);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-
             }
+
+
+
+        }
+            //return null;
+
+        }
+
+
+
+
+
+
+
+
+
+
 
 
         }
 
-        private void saveToFile(List<Track> topTrucks) throws FileNotFoundException {
 
 
-            ArrayList<HashMap<String, String>> topTrackList = new ArrayList<>();
 
-            for (Track track : topTrucks) {
-                HashMap<String, String> trackMap = new HashMap<>();
-                trackMap.put("track", track.name);
-                trackMap.put("artist", track.artists.get(0).name);
-                trackMap.put("album", track.album.name);
-
-                topTrackList.add(trackMap);
-
-            }
-
-
-            for (int a = 0; a < topTrackList.size(); a++) {
-                //serialise
-                HashMap<String, String> tempData = topTrackList.get(a);
-                Set<String> key = tempData.keySet();
-                Iterator it = key.iterator();
-                while (it.hasNext()) {
-                    String hmKey = (String) it.next();
-                    String hmData = tempData.get(hmKey);
-
-
-                    //save now
-
-                    String trackData = "Key: " + hmKey + " & Data: " + hmData;
-                    String filename = "toptracks.txt";
-
-                    File file = new File(getActivity().getFilesDir(), filename);
-
-                    FileOutputStream stream = new FileOutputStream(file);
-                    try {
-                        stream.write(trackData.getBytes());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        try {
-                            stream.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    it.remove(); // avoids a ConcurrentModificationException
-                }
-
-
-            }
-
-        }
-    }
-}

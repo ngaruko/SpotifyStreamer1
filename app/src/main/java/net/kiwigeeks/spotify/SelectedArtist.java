@@ -12,7 +12,10 @@ public class SelectedArtist extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+      // getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_selected_artist);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
 

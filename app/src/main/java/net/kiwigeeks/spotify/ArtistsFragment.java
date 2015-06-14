@@ -61,18 +61,47 @@ public class ArtistsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
         setHasOptionsMenu(true);
+
+        //save on rotation
+//        if (savedInstanceState==null || !savedInstanceState.containsKey("tracklist"))
+//            updateTracks();
+
+
+
+        if (savedInstanceState!=null && savedInstanceState.containsKey("artistlist"))
+            ArtistList = savedInstanceState.getParcelableArrayList("artistlist");
+
+
+
+
 
         //Ask user to insert a query
 
-        String title = "Enter artist name!";
+       // String title = "Enter artist name!";
         String message = "Please enter the name of the artist in the top bar." +
                 "\n Go to Settings to select the country.\n Press the arrow or the Search Key when done!";
-        notifyUser(title, message); //or maybe use a toast
+       // notifyUser(title, message); //or maybe use a toast
+        Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
+
 
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
 
+        // Save current data
+
+        if(ArtistList!=null)        Log.e("Saving...", "I will save this " + ArtistList.get(0).getArtistName());
+        savedInstanceState.putParcelableArrayList("artistlist", ArtistList);
+
+
+
+    }
 
     @Override
     public void onStart() {
