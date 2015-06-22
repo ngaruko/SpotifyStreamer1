@@ -1,8 +1,9 @@
 package net.kiwigeeks.spotify;
 
+import android.app.DialogFragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -13,10 +14,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import net.kiwigeeks.spotify.data.TrackDbHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,52 +31,63 @@ import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
 import retrofit.RetrofitError;
 
+//import net.kiwigeeks.spotify.data.TrackContract.TrackEntry;
+
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class TrackActivityFragment extends Fragment {
+    // private static String sportifyIdentity;
+    // FragmentManager fm = getSupportFragmentManager();
+
+    public  TrackActivityFragment() {}
+  public   ArrayList<TrackListData> TrackList = new ArrayList<>();
 
 
-    ArrayList<TrackListData> TrackList = new ArrayList<>();
+    TracksAdapter mTracksAdapter;
+    String countryCode;
+    public static String spotifyId;
 
 
-    //int[] img = new int[0];
-    TrackListData trackData = new TrackListData();
+
+    //set listener
 
 
-    private TracksAdapter mTracksAdapter;
-    private String countryCode;
-    private String spotifyId;
-    private String testData;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        countryCode = pref
+                .getString(getString(R.string.pref_country_key),
+                        getString(R.string.pref_country_default));
+
+        //  countryCode="US";
 
 
         Intent intent = getActivity().getIntent();
-        if (intent != null) {
+        if (intent != null && intent.hasExtra("EXTRA_SPOTIFY_ID")) {
 
             spotifyId = intent.getStringExtra("EXTRA_SPOTIFY_ID");
-            //  updateTracks();
+
+        } else spotifyId = getArguments().getString("spotifyId");
+        //redo this code
+
+        //if (spotifyId==null) spotifyId=getArguments().getString("spotifyId");
+
+
+        if (savedInstanceState == null || !savedInstanceState.containsKey("tracklist"))
+            updateTracks();
+
+
+        else {
+            TrackList = savedInstanceState.getParcelableArrayList("tracklist");
         }
-       if (savedInstanceState==null || !savedInstanceState.containsKey("tracklist"))
-           updateTracks();
 
 
-           else {
-           TrackList = savedInstanceState.getParcelableArrayList("tracklist");
-       }
-
-
-
-
-    }
-
-    public TrackActivityFragment() {
     }
 
 
@@ -86,29 +98,23 @@ public class TrackActivityFragment extends Fragment {
         super.onStart();
 
 
-
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
 
-       // Save current data
+        // Save current data
 
-        if(TrackList!=null)        Log.e("Saving...", "I will save this " + TrackList.get(0).getAlbumName());
+
         savedInstanceState.putParcelableArrayList("tracklist", TrackList);
-
 
 
     }
 
-    private void updateTracks() {
+    protected void updateTracks() {
         GetTracksDataTask tracksDataTask = new GetTracksDataTask();
 
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        countryCode = pref
-                .getString(getString(R.string.pref_country_key),
-                        getString(R.string.pref_country_default));
 
         tracksDataTask.execute(countryCode);
     }
@@ -120,11 +126,9 @@ public class TrackActivityFragment extends Fragment {
         super.onSaveInstanceState(savedInstanceState);
 
 
-
-
         View rootView = inflater.inflate(R.layout.fragment_track, container, false);
 
-      ListView   trackListView = (ListView) rootView.findViewById(R.id.listview_tracks);
+        ListView trackListView = (ListView) rootView.findViewById(R.id.listview_tracks);
 
 
         //check out this code
@@ -144,40 +148,48 @@ public class TrackActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 TracksAdapter adapter = (TracksAdapter) adapterView.getAdapter();
-                LinearLayout currentView = (LinearLayout) view;
+
 
                 TrackListData selectedTrack = adapter.getItem(position);
 
-                String selectedTrackName = selectedTrack.getTrackName();
-                trackData.setTrackName(selectedTrackName);
+                MainActivity ma = new MainActivity();
+                if (ma.mTwoPane = true) {
+                    //Todo something
 
-                String selectedAlbumName = selectedTrack.getAlbumName();
-                trackData.setAlbumName(selectedAlbumName);
+                    DialogFragment newFragment =  TrackPlayerFragment.newInstance(position);
+                    FragmentTransaction ft=getActivity().getFragmentManager().beginTransaction();
+
+                   newFragment.show(ft, "");
+//                    ft.commit();
 
 
-                ImageView selectedTrackImageView = (ImageView) currentView.findViewById(R.id.track_thumbnail);
-                // Bitmap bitmap = BitmapFactory.decodeResource(selectedArtistImage);
-//
 
-                selectedTrackImageView.buildDrawingCache();
-                Bitmap image = selectedTrackImageView.getDrawingCache();
+                }
 
-                Bundle extras = new Bundle();
-                extras.putParcelable("imagebitmap", image);
+         else {
+                    Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
 
-                Bundle stringExtras = new Bundle();
-                stringExtras.putString("EXTRA_NAME", selectedTrackName);
-                stringExtras.putString("EXTRA_ALBUM", selectedAlbumName);
+                    intent.putExtra("EXTRA_TRACK_INDEX", position);
+                    // intent.putExtras(stringExtras);
+                    startActivity(intent);
 
-                Intent intent = new Intent(getActivity(), SelectedTrackActivity.class);
-
-                intent.putExtras(extras);
-                intent.putExtras(stringExtras);
-
-                startActivity(intent);
+                }
             }
         });
         return rootView;
+
+    }
+
+    // ItemDetailFragment.newInstance(item)
+    public static TrackActivityFragment newInstance(ArtistListData data)
+
+    {
+        TrackActivityFragment trackFragment = new TrackActivityFragment();
+
+        Bundle args = new Bundle();
+        args.putString("spotifyId", data.getSpotifyId());
+        trackFragment.setArguments(args);
+        return trackFragment;
     }
 
 
@@ -199,40 +211,37 @@ public class TrackActivityFragment extends Fragment {
             HashMap<String, Object> options = new HashMap<>();
             options.put("country", countryCode);
 
-        try {
-            topTracks=    spotify.getArtistTopTrack(spotifyId, options);
-            return  topTracks.tracks;
-        }catch (RetrofitError error) {
-            SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
-            Log.e("Spotify Error: ",spotifyError.getMessage());
+            Log.e("Country code...", countryCode);
+            Log.e("spotify id...", spotifyId);
+
+            try {
+                topTracks = spotify.getArtistTopTrack(spotifyId, options);
+                return topTracks.tracks;
+            } catch (RetrofitError error) {
+                SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
+                Log.e("Spotify Error: ", spotifyError.getMessage());
 
 
-
-        }
-
+            }
 
 
             return null;
         }
 
 
-
-
-
-
         @Override
         protected void onPostExecute(List<Track> tracks) {
-           // super.onPostExecute(trackList);
+
+        //Clear database here
+            new TrackDbHelper(getActivity()).resetDb();
 
 
             if (tracks == null || tracks.isEmpty()) {
                 Log.e("Error", "Nothing received!");
-                Toast.makeText(getActivity(), "NO TRACKS FOUND. PLEASE TRY AGAIN", Toast.LENGTH_LONG).show();
-            }
-
-
-            else {
+                Toast.makeText(getActivity(), "NO TRACKS FOUND. PLEASE TRY AGAIN LATER", Toast.LENGTH_LONG).show();
+            } else {
                 TrackList.clear();
+
 
                 for (Track track : tracks) {
 
@@ -242,9 +251,14 @@ public class TrackActivityFragment extends Fragment {
                     try {
                         //set values for the data
 
+
                         myTrack.setTrackName(track.name);
                         myTrack.setAlbumName(track.album.name);
                         myTrack.setPreviewUrl(track.preview_url);
+                        myTrack.setDuration(Long.toString(track.duration_ms));
+                        myTrack.setArtistName(track.artists.get(0).name);
+                        myTrack.setCountryCode(countryCode);
+
 
                         List<Image> image = track.album.images;
 
@@ -270,42 +284,64 @@ public class TrackActivityFragment extends Fragment {
 
                     }//end finally
 
-                    TrackList.add(myTrack);
+                  //  TrackList.add(myTrack);
                     Log.e("Track", myTrack.getTrackName());
                     Log.e("Album", myTrack.getAlbumName());
                     Log.e("Thumb", myTrack.getPreviewUrl());
+                    Log.e("Artist to show", myTrack.getArtistName());
+
+
+
+
+                    insertDataToDatabase(myTrack);
+
+
 
 
                 }//end for
-                Log.e("Numbe: ", Integer.toString(TrackList.size()));
-                Log.e("From List", TrackList.get(0).getTrackName());
-                Log.e("Country Code", countryCode);
 
+
+                populateTrackListFromDb();
 
                 mTracksAdapter.notifyDataSetChanged();
-
 
             }
 
 
-
-        }
-            //return null;
-
         }
 
+        private void insertDataToDatabase(TrackListData myTrack) {
+
+            TrackDbHelper mDbHelper = new TrackDbHelper(getActivity());
 
 
-
-
-
-
-
-
-
-
-
+            mDbHelper.addTracks(myTrack);
         }
+
+
+        private void populateTrackListFromDb() {
+            TrackDbHelper mDbHelper = new TrackDbHelper(getActivity());
+
+            // Gets the data repository in write mode
+
+
+            TrackList.addAll(mDbHelper.getAllTracks());
+
+
+
+
+            Log.e("Element 1...", TrackList.get(0).getTrackName());
+            Log.e("Element 2...", TrackList.get(1).getTrackName());
+
+            for(TrackListData t: TrackList) {
+                Log.e("Name..",  t.getTrackName());
+            }
+        }
+
+    }
+
+
+}
 
 
 

@@ -7,7 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class TrackActivity extends ActionBarActivity {
+public class TrackActivity extends ActionBarActivity  {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,9 +16,14 @@ public class TrackActivity extends ActionBarActivity {
         //savedInstanceState.putString("message", "This is my message to be reloaded");
 
         setContentView(R.layout.activity_track);
+
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.top_track_container, new TrackActivityFragment())
+                    .commit();
+        }
     }
-
-
 
 
     @Override
@@ -45,4 +50,7 @@ public class TrackActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
+
 }

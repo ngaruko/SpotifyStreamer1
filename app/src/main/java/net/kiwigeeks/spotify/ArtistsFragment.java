@@ -1,11 +1,11 @@
 package net.kiwigeeks.spotify;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
@@ -17,8 +17,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -38,6 +36,7 @@ import retrofit.RetrofitError;
  * A placeholder fragment containing a simple view.
  */
 public class ArtistsFragment extends Fragment {
+//for screen
 
 
     //region members
@@ -47,8 +46,7 @@ public class ArtistsFragment extends Fragment {
     ArtistListData listData = new ArtistListData();
     private ArtistAdapter mArtistAdapter;
     private String searchQuery;
-    private View rootView;
-    private View progressbarView;
+     private ListView artistsListView;
 
     //endregion
 
@@ -57,38 +55,36 @@ public class ArtistsFragment extends Fragment {
 
     }
 
+    private OnItemSelectedListener listener;
+
+    public interface OnItemSelectedListener {
+        void onItemSelected(ArtistListData ad);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        if (activity instanceof OnItemSelectedListener) {
+            listener = (OnItemSelectedListener) activity;
+        } else {
+            throw new ClassCastException(activity.toString()
+                    + " must implement ItemsListFragment.OnItemSelectedListener");
+        }
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
-
         setHasOptionsMenu(true);
 
-        //save on rotation
-//        if (savedInstanceState==null || !savedInstanceState.containsKey("tracklist"))
-//            updateTracks();
 
-
-
-        if (savedInstanceState!=null && savedInstanceState.containsKey("artistlist"))
+        if (savedInstanceState != null && savedInstanceState.containsKey("artistlist"))
             ArtistList = savedInstanceState.getParcelableArrayList("artistlist");
 
 
-
-
-
-        //Ask user to insert a query
-
-       // String title = "Enter artist name!";
-        String message = "Please enter the name of the artist in the top bar." +
-                "\n Go to Settings to select the country.\n Press the arrow or the Search Key when done!";
-       // notifyUser(title, message); //or maybe use a toast
-        Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
-
-
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -96,9 +92,9 @@ public class ArtistsFragment extends Fragment {
 
         // Save current data
 
-        if(ArtistList!=null)        Log.e("Saving...", "I will save this " + ArtistList.get(0).getArtistName());
-        savedInstanceState.putParcelableArrayList("artistlist", ArtistList);
-
+        if (ArtistList != null)
+//            Log.e("Saving...", "I will save this " + ArtistList.get(0).getArtistName());
+            savedInstanceState.putParcelableArrayList("artistlist", ArtistList);
 
 
     }
@@ -107,8 +103,8 @@ public class ArtistsFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-         progressbarView = rootView.findViewById(R.id.progress_bar_layout);
-        progressbarView.setVisibility(View.GONE);
+//         progressbarView = rootView.findViewById(R.id.progress_bar_layout);
+//        progressbarView.setVisibility(View.GONE);
 
 
     }
@@ -162,7 +158,7 @@ public class ArtistsFragment extends Fragment {
                 listData.setSearchQuery(query);
                 search.clearFocus();
                 //display the Progress bar
-                progressbarView.setVisibility(View.VISIBLE);
+//                progressbarView.setVisibility(View.VISIBLE);
 
                 searchForArtists();
 
@@ -179,6 +175,7 @@ public class ArtistsFragment extends Fragment {
 
         });
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -213,11 +210,11 @@ public class ArtistsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        //inflate the view
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-        rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-
-        ListView artistsListView = (ListView) rootView.findViewById(R.id.listview_artists);
+        //Bind adapter to listview
+        artistsListView = (ListView) rootView.findViewById(R.id.listview_artists);
 
         mArtistAdapter = new ArtistAdapter(this.getActivity(), ArtistList);
 
@@ -233,40 +230,40 @@ public class ArtistsFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+        //Retrieve item based on position
+
 
                 ArtistAdapter adapter = (ArtistAdapter) adapterView.getAdapter();
-                LinearLayout currentView = (LinearLayout) view;
 
                 ArtistListData selectedArtist = adapter.getItem(position);
+                // Fire selected event for item
+                listener.onItemSelected(selectedArtist);
 
-                String selectedArtistName = selectedArtist.getArtistName();
-                listData.setArtistName(selectedArtistName);
-
-                String spotifyId = selectedArtist.getSpotifyId();
-
-
-                ImageView selectedArtistImageView = (ImageView) currentView.findViewById(R.id.artist_thumbnail);
-
-
-                selectedArtistImageView.buildDrawingCache();
-                Bitmap image = selectedArtistImageView.getDrawingCache();
-
-                Bundle extras = new Bundle();
-                extras.putParcelable("imagebitmap", image);
-
-
-                Intent intent = new Intent(getActivity(), SelectedArtist.class)
-                        .putExtra("EXTRA_ARTIST_NAME", selectedArtistName)
-                        .putExtra("EXTRA_SPOTIFY_ID", spotifyId)
-
-                        .putExtras(extras);
-
-                startActivity(intent);
             }
         });
 
         //END ONCLICK LISTNER
         return rootView;
+    }
+
+
+    /**
+     * Turns on activate-on-click mode. When this mode is on, list items will be
+     * given the 'activated' state when touched.
+     */
+    public void setActivateOnItemClick(boolean activateOnItemClick) {
+        // When setting CHOICE_MODE_SINGLE, ListView will automatically
+        // give items the 'activated' state when touched.
+        artistsListView.setChoiceMode(
+                activateOnItemClick ? ListView.CHOICE_MODE_SINGLE
+                        : ListView.CHOICE_MODE_NONE);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+
     }
 
 
@@ -283,7 +280,7 @@ public class ArtistsFragment extends Fragment {
 
 
                 ArtistsPager results = spotify.searchArtists(searchQuery);
-                return  results.artists.items;
+                return results.artists.items;
 
             } catch (RetrofitError error) {
 
