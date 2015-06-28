@@ -38,8 +38,6 @@ import retrofit.RetrofitError;
  * A placeholder fragment containing a simple view.
  */
 public class TrackActivityFragment extends Fragment {
-    // private static String sportifyIdentity;
-    // FragmentManager fm = getSupportFragmentManager();
 
     public  TrackActivityFragment() {}
   public   ArrayList<TrackListData> TrackList = new ArrayList<>();
@@ -128,7 +126,7 @@ public class TrackActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_track, container, false);
 
-        ListView trackListView = (ListView) rootView.findViewById(R.id.listview_tracks);
+        final ListView trackListView = (ListView) rootView.findViewById(R.id.listview_tracks);
 
 
         //check out this code
@@ -152,31 +150,43 @@ public class TrackActivityFragment extends Fragment {
 
                 TrackListData selectedTrack = adapter.getItem(position);
 
+
                 MainActivity ma = new MainActivity();
                 if (ma.mTwoPane = true) {
                     //Todo something
 
-                    DialogFragment newFragment =  TrackPlayerFragment.newInstance(position);
-                    FragmentTransaction ft=getActivity().getFragmentManager().beginTransaction();
+                    //  DialogFragment newFragment =  TrackPlayerFragment.newInstance(position);
 
-                   newFragment.show(ft, "");
-//                    ft.commit();
+                    DialogFragment newFragment = PlayerActivityFragment.newInstance(position);
+                    FragmentTransaction ft = getActivity().getFragmentManager().beginTransaction();
+
+                    newFragment.show(ft, "");
+//
 
 
+                } else {
 
-                }
 
-         else {
-                    Intent intent = new Intent(getActivity(), TrackPlayerActivity.class);
+                    Intent intent = new Intent(getActivity(), PlayerActivity.class);
 
                     intent.putExtra("EXTRA_TRACK_INDEX", position);
-                    // intent.putExtras(stringExtras);
+
                     startActivity(intent);
 
                 }
+
+
+
+
             }
         });
+
+
         return rootView;
+
+
+
+
 
     }
 

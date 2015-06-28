@@ -1,0 +1,134 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/dialog_fixed_height_major"
+    android:orientation="vertical"
+
+    android:background="@drawable/list_selector"
+
+    tools:context="net.kiwigeeks.spotify.PlayerActivityFragment">
+
+    >
+
+        <TextView
+            android:id="@+id/selected_artist_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/abc_action_bar_artist_description"
+
+            />
+
+        <TextView
+            android:id="@+id/selected_track_album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:layout_gravity="center"
+            android:text="@string/abc_action_bar_home_description_format"
+            />
+
+
+        <ImageView
+            android:id="@+id/selected_track_thumbnail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/abc_action_bar_home_description"
+            android:padding="10dp"
+            android:layout_gravity="center"
+            android:src="@drawable/image_placeholder"
+            />
+
+        <TextView
+            android:id="@+id/selected_track_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/abc_action_bar_up_description"
+            android:layout_gravity="center"/>
+
+        <!-- Timer Display -->
+        <LinearLayout
+            android:id="@+id/duration_label"
+
+            android:orientation="horizontal"
+
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginBottom="10dp">
+            <!-- Current Duration Label -->
+            <TextView
+                android:id="@+id/trackCurrentDurationLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="left"
+                android:textColor="#eeeeee"
+                android:layout_weight="1"
+                android:textStyle="bold"/>
+            <!-- Total Duration Label -->
+            <TextView
+                android:id="@+id/trackTotalDurationLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:textColor="#04cbde"
+                android:textStyle="bold"/>
+        </LinearLayout>
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/track_progressbar"/>
+
+        <LinearLayout
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?attr/actionButtonStyle"
+            android:id="@+id/loading">
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@android:style/Widget.ProgressBar.Small" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/loading"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <ImageButton
+                android:id="@+id/previous_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_media_previous"
+                android:contentDescription="@string/previous_button"
+                />
+            <ImageButton
+                android:id="@+id/play_pause_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:src="@android:drawable/ic_media_play"
+                android:contentDescription="@string/play_pause_button"
+                />
+            <ImageButton
+                android:id="@+id/next_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_media_next"
+                android:contentDescription="@string/next_track_button"
+                />
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+
+

@@ -237,6 +237,8 @@ public class ArtistsFragment extends Fragment {
 
                 ArtistListData selectedArtist = adapter.getItem(position);
                 // Fire selected event for item
+
+
                 listener.onItemSelected(selectedArtist);
 
             }

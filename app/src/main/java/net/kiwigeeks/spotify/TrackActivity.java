@@ -17,6 +17,13 @@ public class TrackActivity extends ActionBarActivity  {
 
         setContentView(R.layout.activity_track);
 
+//
+//        if (savedInstanceState == null) {
+//            getSupportFragmentManager().beginTransaction()
+//                    .add(R.id.top_track_container, new TrackActivityFragment())
+//                    .commit();
+//        }
+
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()

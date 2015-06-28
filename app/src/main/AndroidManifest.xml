@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="net.kiwigeeks.spotify">
+    package="net.kiwigeeks.spotify" >
 
     <uses-permission android:name="android.permission.INTERNET" />
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-
-
-        android:theme="@style/Theme.AppCompat.Light">
-
+        android:theme="@style/Theme.AppCompat.Light" >
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation"
-            android:label="@string/app_name">
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,23 +22,28 @@
         </activity>
         <activity
             android:name=".TrackActivity"
-
-            android:label="@string/title_activity_track">
-
-        </activity>
-        <activity
-            android:name=".TrackPlayerActivity"
-            android:label="@string/title_activity_selected_track">
-
-
+            android:label="@string/title_activity_track" >
         </activity>
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="net.kiwigeeks.spotify.MainActivity" />
+        </activity>
+
+
+        <service
+            android:name=".MusicService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
+        <activity
+            android:name=".PlayerActivity"
+            android:label="@string/title_activity_player" >
+            android:configChanges="orientation|screenSize"
         </activity>
     </application>
 

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="action_update" type="id">Update</item>
+    <item name="action_shuffle" type="id">Shaffle</item>
+    <item name="action_end" type="id">End</item>
 </resources>

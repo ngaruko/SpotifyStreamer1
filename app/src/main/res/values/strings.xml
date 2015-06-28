@@ -21,4 +21,9 @@
     <string name="play_pause_button">Play/Pause</string>
     <string name="previous_button">Previous</string>
     <string name="album_thumbnail">Album thumbnail</string>
+    <string name="local_service_started">Local Service Started</string>
+    <string name="local_service_stopped">Local Service Stopped</string>
+    <string name="local_service_label">Local Service Label</string>
+    <string name="title_activity_player">PlayerActivity</string>
+    <string name="action_welcome">Please enter the artist name in the search field above and press the search button!</string>
 </resources>
